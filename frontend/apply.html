@@ -1,0 +1,233 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apply for Job | JobNest</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f3f6fa;
+            padding: 40px 15px;
+            color: #243247;
+        }
+
+        .form-container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 35px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        h1 {
+            color: #142b49;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #66758a;
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 7px;
+            font-weight: bold;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #d5dce5;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        button {
+            width: 100%;
+            padding: 13px;
+            background: #142b49;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #35a995;
+        }
+
+        #message {
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #142b49;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="form-container">
+
+        <h1>Job Application Form</h1>
+
+        <p class="subtitle">
+            Complete the form below to apply for this opportunity.
+        </p>
+
+        <form id="applicationForm">
+
+            <label>Full Name</label>
+            <input type="text" id="name" required>
+
+            <label>Email Address</label>
+            <input type="email" id="email" required>
+
+            <label>Phone Number</label>
+            <input type="tel" id="phone" required>
+
+            <label>Job Position</label>
+            <input type="text" id="jobTitle" readonly>
+
+            <label>Upload Resume</label>
+            <input type="file" id="resume"
+                   accept=".pdf,.doc,.docx" required>
+
+            <label>Cover Letter</label>
+            <textarea id="coverLetter"
+                placeholder="Tell us why you are suitable for this job..."
+                required></textarea>
+
+            <button type="submit" id="submitBtn">
+                Submit Application
+            </button>
+
+            <p id="message"></p>
+
+        </form>
+
+        <a href="index.html" class="back-link">
+            Back to Jobs
+        </a>
+
+    </div>
+
+    
+<script>
+    const params = new URLSearchParams(window.location.search);
+
+    const jobTitle = params.get("title");
+    const jobId = params.get("jobId");
+
+    document.getElementById("jobTitle").value =
+        jobTitle || "Job not selected";
+
+    const userId = localStorage.getItem("userId");
+
+    if (!userId) {
+        alert("Please login before applying.");
+        window.location.href = "login.html";
+    }
+
+    const applicationForm = document.getElementById("applicationForm");
+    const message = document.getElementById("message");
+    const submitBtn = document.getElementById("submitBtn");
+
+    applicationForm.addEventListener("submit", async function(event) {
+
+        event.preventDefault();
+
+        const resume = document.getElementById("resume").files[0];
+        const coverLetter = document.getElementById("coverLetter").value.trim();
+
+        if (!jobId) {
+            message.style.color = "red";
+            message.textContent = "Please select a valid job.";
+            return;
+        }
+
+        if (!resume) {
+            message.style.color = "red";
+            message.textContent = "Please upload your resume.";
+            return;
+        }
+
+        const formData = new FormData();
+
+        formData.append("userId", userId);
+        formData.append("jobId", jobId);
+        formData.append("coverLetter", coverLetter);
+        formData.append("resume", resume);
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Submitting...";
+
+        try {
+
+            const response = await fetch(
+                "http://localhost:3000/api/apply",
+                {
+                    method: "POST",
+                    body: formData
+                }
+            );
+
+            const data = await response.json();
+
+            if (response.ok) {
+
+    message.style.color = "green";
+    message.textContent = data.message;
+
+    submitBtn.textContent = "Application Submitted";
+    submitBtn.disabled = true;
+
+} else {
+
+                message.style.color = "red";
+                message.textContent = data.message;
+
+            }
+
+        } catch (error) {
+
+            console.error("Application error:", error);
+
+            message.style.color = "red";
+            message.textContent = "Unable to connect to server.";
+
+        }
+
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Submit Application";
+
+    });
+</script>
+
+
+</body>
+</html>

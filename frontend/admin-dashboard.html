@@ -1,0 +1,167 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | JobNest</title>
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f1f5f9;
+            margin: 0;
+        }
+
+        .header {
+            background: #172554;
+            color: white;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h2 {
+            margin: 0;
+        }
+
+        .logout {
+            background: #0f766e;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .welcome {
+            margin-bottom: 30px;
+        }
+
+        .welcome h1 {
+            color: #172554;
+        }
+
+        .dashboard-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.07);
+        }
+
+        .card h3 {
+            color: #172554;
+        }
+
+        .card p {
+            color: #64748b;
+            line-height: 1.5;
+        }
+
+        .card button {
+            background: #0f766e;
+            color: white;
+            border: none;
+            padding: 11px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .card button:hover,
+        .logout:hover {
+            background: #115e59;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <h2>JobNest Admin</h2>
+        <button class="logout" onclick="logout()">Logout</button>
+    </div>
+
+    <div class="container">
+
+        <div class="welcome">
+            <h1 id="welcomeMessage">Welcome, Admin!</h1>
+            <p>Manage jobs and applications from your dashboard.</p>
+        </div>
+
+        <div class="dashboard-cards">
+
+            <div class="card">
+                <h3>Manage Jobs</h3>
+                <p>Add new job openings, edit existing jobs and remove expired listings.</p>
+                <button onclick="window.location.href='manage-jobs.html'">
+    Manage Jobs
+</button>
+            </div>
+
+            <div class="card">
+                <h3>View Applications</h3>
+                <p>View applications submitted by registered job seekers.</p>
+                <button onclick="window.location.href='admin-applications.html'">
+    View Applications
+</button>
+            </div>
+
+            <div class="card">
+                <h3>Admin Account</h3>
+                <p>View your administrator account details.</p>
+                <button onclick="window.location.href='admin-account.html'">
+    View Account
+</button>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        const adminId = localStorage.getItem("adminId");
+        const adminName = localStorage.getItem("adminName");
+
+        if (!adminId) {
+            window.location.href = "admin-login.html";
+        }
+
+        if (adminName) {
+            document.getElementById("welcomeMessage").textContent =
+                "Welcome, " + adminName + "!";
+        }
+        
+        function viewAccount() {
+    const adminId = localStorage.getItem("adminId");
+    const adminName = localStorage.getItem("adminName");
+
+    alert(
+        "ADMIN ACCOUNT DETAILS\n\n" +
+        "Admin ID: " + adminId + "\n" +
+        "Admin Name: " + adminName
+    );
+}
+                
+        function logout() {
+            localStorage.removeItem("adminId");
+            localStorage.removeItem("adminName");
+            window.location.href = "admin-login.html";
+        }
+    </script>
+
+</body>
+</html>

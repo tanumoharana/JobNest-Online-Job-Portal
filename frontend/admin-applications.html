@@ -1,0 +1,208 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Applications | JobNest</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f1f5f9;
+            margin: 0;
+            color: #172554;
+        }
+
+        header {
+            background: #172554;
+            color: white;
+            padding: 18px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header a {
+            color: white;
+            text-decoration: none;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 35px auto;
+            padding: 20px;
+        }
+
+        .application-card {
+            background: white;
+            padding: 22px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        }
+
+        .application-card h3 {
+            color: #0f766e;
+        }
+
+        .application-card p {
+            line-height: 1.6;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 7px 12px;
+            background: #fef3c7;
+            color: #92400e;
+            border-radius: 5px;
+        }
+
+        .resume-link {
+            color: #0f766e;
+            font-weight: bold;
+        }
+
+        #applicationList {
+            margin-top: 25px;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h2>JobNest Admin</h2>
+    <a href="admin-dashboard.html">Back to Dashboard</a>
+</header>
+
+<div class="container">
+
+    <h2>All Job Applications</h2>
+    <p>View and manage applications submitted by candidates.</p>
+
+    <div id="applicationList">
+        <p>Loading applications...</p>
+    </div>
+
+</div>
+
+<script>
+
+    if (!localStorage.getItem("adminId")) {
+        window.location.href = "admin-login.html";
+    }
+
+    async function loadApplications() {
+
+        const applicationList =
+            document.getElementById("applicationList");
+
+        try {
+
+            const response = await fetch(
+                "http://localhost:3000/api/admin/applications"
+            );
+
+            const applications = await response.json();
+
+            applicationList.innerHTML = "";
+
+            if (applications.length === 0) {
+                applicationList.innerHTML =
+                    "<p>No applications received yet.</p>";
+                return;
+            }
+
+            applications.forEach(app => {
+
+                const card = document.createElement("div");
+                card.className = "application-card";
+
+                card.innerHTML = `
+                    <h3>${app.applicant_name}</h3>
+
+                    <p><strong>Email:</strong> ${app.email}</p>
+                    <p><strong>Phone:</strong> ${app.phone || "Not provided"}</p>
+
+                    <p><strong>Applied For:</strong> ${app.job_title}</p>
+                    <p><strong>Company:</strong> ${app.company}</p>
+                    <p><strong>Location:</strong> ${app.location}</p>
+
+                    <p><strong>Applied On:</strong>
+                        ${new Date(app.applied_at).toLocaleDateString()}
+                    </p>
+
+                    <p><strong>Status:</strong></p>
+
+<select id="status-${app.id}">
+    <option value="Pending" ${app.status === "Pending" ? "selected" : ""}>Pending</option>
+    <option value="Accepted" ${app.status === "Accepted" ? "selected" : ""}>Accepted</option>
+    <option value="Rejected" ${app.status === "Rejected" ? "selected" : ""}>Rejected</option>
+</select>
+
+<button onclick="updateStatus(${app.id})">
+    Update Status
+</button>
+
+                    <p><strong>Cover Letter:</strong></p>
+                    <p>${app.cover_letter || "No cover letter provided"}</p>
+
+                    <p><strong>Resume:</strong>
+                        ${app.resume_path
+                            ? `<a class="resume-link"
+                                href="http://localhost:3000/${app.resume_path}"
+                                target="_blank">View Resume</a>`
+                            : "Not uploaded"}
+                    </p>
+                `;
+
+                applicationList.appendChild(card);
+
+            });
+
+        } catch (error) {
+
+            applicationList.innerHTML =
+                "<p>Unable to load applications.</p>";
+
+        }
+    }
+
+async function updateStatus(applicationId) {
+
+    const status = document.getElementById(
+        `status-${applicationId}`
+    ).value;
+
+    try {
+        const response = await fetch(
+            `http://localhost:3000/api/admin/applications/${applicationId}/status`,
+            {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ status: status })
+            }
+        );
+
+        const data = await response.json();
+
+        alert(data.message);
+
+        if (response.ok) {
+            loadApplications();
+        }
+
+    } catch (error) {
+        alert("Unable to update application status");
+    }
+}
+
+    loadApplications();
+
+</script>
+
+</body>
+</html>

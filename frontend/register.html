@@ -1,0 +1,79 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | JobNest</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <h2>JobNest</h2>
+        <a href="index.html">Home</a>
+    </nav>
+
+    <section class="form-container">
+        <h1>Create Your Account</h1>
+        <p>Join JobNest and find your dream job.</p>
+
+        <form id="registerForm">
+            <input type="text" id="name" placeholder="Full Name" required>
+
+           <input type="email" id="email" placeholder="Email Address" required>
+
+<input type="tel" id="phone" placeholder="Phone Number"
+       pattern="[0-9]{10}" maxlength="10"
+       title="Enter a valid 10-digit phone number" required>
+
+<input type="password" id="password" placeholder="Password" required>
+
+            <button type="submit">Register</button>
+        </form>
+
+        <p>Already have an account?
+            <a href="login.html">Login</a>
+        </p>
+    </section>
+
+<script>
+document.getElementById("registerForm").addEventListener("submit", async function(event) {
+    event.preventDefault();
+
+    const name = document.getElementById("name").value.trim();
+const email = document.getElementById("email").value.trim();
+const phone = document.getElementById("phone").value.trim();
+const password = document.getElementById("password").value;
+
+    try {
+        const response = await fetch("http://localhost:3000/api/register", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+    name: name,
+    email: email,
+    password: password,
+    phone: phone
+})
+        });
+
+        const result = await response.json();
+
+        alert(result.message);
+
+        if (response.ok) {
+            document.getElementById("registerForm").reset();
+        }
+
+    } catch (error) {
+        alert("Unable to connect to the server. Please try again.");
+        console.error(error);
+    }
+});
+</script>
+
+</body>
+</html>

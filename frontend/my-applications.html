@@ -1,0 +1,231 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Applications | JobNest</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f7fb;
+            color: #172b4d;
+        }
+
+        header {
+            background: #102a43;
+            color: white;
+            padding: 20px 8%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h2 {
+            color: #35c6b0;
+        }
+
+        header a {
+            color: white;
+            text-decoration: none;
+        }
+
+        .container {
+            width: 85%;
+            max-width: 1100px;
+            margin: 45px auto;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #64748b;
+            margin-bottom: 30px;
+        }
+
+        .application-card {
+            background: white;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.06);
+        }
+
+        .application-card h3 {
+            color: #102a43;
+            margin-bottom: 10px;
+        }
+
+        .application-card p {
+            margin: 9px 0;
+            color: #526579;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 7px 14px;
+            border-radius: 20px;
+            background: #fff3cd;
+            color: #856404;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .empty {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            color: #64748b;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #087f8c;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                width: 92%;
+            }
+
+            header {
+                padding: 18px 5%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h2>JobNest</h2>
+        <a href="dashboard.html">Dashboard</a>
+    </header>
+
+    <div class="container">
+
+        <h1>My Applications</h1>
+        <p class="subtitle">
+            Track the jobs you have applied for.
+        </p>
+
+        <div id="applicationsList">
+            Loading your applications...
+        </div>
+
+        <a href="index.html" class="back-link">
+            ← Browse More Jobs
+        </a>
+
+    </div>
+
+    <script>
+
+        const userId = localStorage.getItem("userId");
+
+        const applicationsList =
+            document.getElementById("applicationsList");
+
+        if (!userId) {
+
+            alert("Please login first.");
+            window.location.href = "login.html";
+
+        } else {
+
+            loadApplications();
+
+        }
+
+        async function loadApplications() {
+
+            try {
+
+                const response = await fetch(
+                    "http://localhost:3000/api/my-applications/" + userId
+                );
+
+                const applications = await response.json();
+
+                if (!response.ok) {
+                    throw new Error("Unable to load applications");
+                }
+
+                if (applications.length === 0) {
+
+                    applicationsList.innerHTML = `
+                        <div class="empty">
+                            <h3>No Applications Yet!</h3>
+                            <p>You haven't applied for any jobs.</p>
+                        </div>
+                    `;
+
+                    return;
+                }
+
+                applicationsList.innerHTML = "";
+
+                applications.forEach((application) => {
+
+                    const card = document.createElement("div");
+                    card.className = "application-card";
+
+                    const title = document.createElement("h3");
+                    title.textContent = application.title;
+
+                    const company = document.createElement("p");
+                    company.textContent =
+                        "Company: " + application.company;
+
+                    const location = document.createElement("p");
+                    location.textContent =
+                        "Location: " + application.location;
+
+                    const date = document.createElement("p");
+                    date.textContent =
+                        "Applied On: " +
+                        new Date(application.applied_at)
+                            .toLocaleDateString();
+
+                    const status = document.createElement("span");
+                    status.className = "status";
+                    status.textContent = application.status;
+
+                    card.appendChild(title);
+                    card.appendChild(company);
+                    card.appendChild(location);
+                    card.appendChild(date);
+                    card.appendChild(status);
+
+                    applicationsList.appendChild(card);
+
+                });
+
+            } catch (error) {
+
+                console.error(error);
+
+                applicationsList.textContent =
+                    "Unable to load applications. Please try again.";
+
+            }
+
+        }
+
+    </script>
+
+</body>
+</html>

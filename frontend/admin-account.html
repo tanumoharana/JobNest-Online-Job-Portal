@@ -1,0 +1,148 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Account | JobNest</title>
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f1f5f9;
+            margin: 0;
+        }
+
+        .header {
+            background: #172554;
+            color: white;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 650px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+
+        .account-card {
+            background: white;
+            padding: 35px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.07);
+        }
+
+        h1, h2 {
+            color: #172554;
+        }
+
+        .detail {
+            padding: 15px 0;
+            border-bottom: 1px solid #e2e8f0;
+            color: #334155;
+        }
+
+        .detail strong {
+            display: inline-block;
+            width: 130px;
+            color: #172554;
+        }
+
+        button {
+            background: #0f766e;
+            color: white;
+            border: none;
+            padding: 11px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background: #115e59;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <h2>JobNest Admin</h2>
+        <button onclick="window.location.href='admin-dashboard.html'">
+            Back to Dashboard
+        </button>
+    </div>
+
+    <div class="container">
+        <div class="account-card">
+            <h1>Admin Account</h1>
+            <p>Your administrator account information.</p>
+
+            <div class="detail">
+                <strong>Admin ID:</strong>
+                <span id="adminId">Loading...</span>
+            </div>
+
+            <div class="detail">
+                <strong>Name:</strong>
+                <span id="adminName">Loading...</span>
+            </div>
+
+            <div class="detail">
+                <strong>Email:</strong>
+                <span id="adminEmail">Loading...</span>
+            </div>
+
+            <button onclick="window.location.href='admin-dashboard.html'">
+                Back to Dashboard
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const adminId = localStorage.getItem("adminId");
+        const adminName = localStorage.getItem("adminName");
+
+        if (!adminId) {
+            window.location.href = "admin-login.html";
+        } else {
+            document.getElementById("adminId").textContent = adminId;
+            document.getElementById("adminName").textContent =
+                adminName || "Not available";
+        }
+
+        async function loadAdminDetails() {
+            if (!adminId) return;
+
+            try {
+                const response = await fetch(
+                    `http://localhost:3000/api/admin/profile/${adminId}`
+                );
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    document.getElementById("adminName").textContent =
+                        data.name;
+                    document.getElementById("adminEmail").textContent =
+                        data.email;
+                } else {
+                    document.getElementById("adminEmail").textContent =
+                        "Unable to load";
+                }
+
+            } catch (error) {
+                document.getElementById("adminEmail").textContent =
+                    "Unable to connect to server";
+            }
+        }
+
+        loadAdminDetails();
+    </script>
+
+</body>
+</html>
